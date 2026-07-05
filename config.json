@@ -27,5 +27,15 @@
                                 800
                             ],
                             "snr_min_db": 3.0
-                        }
+                        },
+
+
+    "deconvolution" : {
+                            "deconvolution_operator_len" : 120,
+                            "deconvolution_pre_whitening" : 0.001,
+                            "deconvolution_start_n" : 0.3,
+                            "deconvolution_end_n" : 2.5
+
+    }
 }
+
