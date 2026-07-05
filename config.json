@@ -1,0 +1,31 @@
+{
+    "autocorrelation" : {
+                            "clip_frac_max": 0.3,
+                            "clip_thresh_sigma": 6.0,
+                            "dead_std_min": 1e-9,
+                            "energy_mad_k": 2.0,
+
+                            "zero_run_max_ms": 30.0,
+
+                            "kurtosis_min": 2.0,
+                            "kurtosis_max": 150.0,
+
+                            "freq_low_hz": 5.0,
+                            "freq_high_hz": 80.0,
+                            "spec_flatness_min": 0.001,
+                            "spec_energy_out_band_max": 0.35,
+
+                            "ac_lag_ms": 300.0,
+                            "ac_periodicity_thresh": 0.05,
+
+                            "noise_win_ms": [
+                                0,
+                                50
+                            ],
+                            "signal_win_ms": [
+                                50,
+                                800
+                            ],
+                            "snr_min_db": 3.0
+                        }
+}

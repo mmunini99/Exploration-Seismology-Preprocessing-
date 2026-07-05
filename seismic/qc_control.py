@@ -12,7 +12,7 @@ def get_qc_analysis_and_statistics(data_stored):
     fold = np.array([np.sum(cdp_num == id) for id in unique_cdp_idx])
 
     print("\n=== QC STATISTICS ===")
-     print(f'Count different shots: {int(unique_source_idx)}')
+    print(f'Count different shots: {int(unique_source_idx)}')
 
     print(f'Average fold: {int(np.mean(fold))}')
     print(f'Median fold: {int(np.median(fold))}')
@@ -178,7 +178,7 @@ def amplitude_qc(data_stored):
 
 
 def trace_integrity_qc(data_stored):
-    
+
     traces = data_stored['traces']
 
     print("\n=== TRACE INTEGRITY QC ===")
