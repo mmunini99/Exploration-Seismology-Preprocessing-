@@ -19,6 +19,7 @@ def load_segy(path, neg_off=True):
             rec_y=f.attributes(segyio.TraceField.GroupY)[:],
             src_depth=f.attributes(segyio.TraceField.SourceDepth)[:],
             rec_depth=f.attributes(segyio.TraceField.ReceiverGroupElevation)[:],
+            scalar=f.attributes(segyio.TraceField.SourceGroupScalar)[:]
         )
     return data, headers, dt
 

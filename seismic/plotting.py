@@ -240,27 +240,45 @@ def plot_velocity_field(velocity_field, all_cdps, full_t0):
     plt.show()
 
 
-def wiggle_plot(data, dt, scale):
+def wiggle_plot(data, dt, scale, title, xlabel, x_axis=None, trace_spacing=1.0):
 
     ntr, ns = data.shape
     t = np.arange(ns) * dt
 
     data = data / np.max(np.abs(data))  # normalize
 
-    plt.figure(figsize=(10, 8))
+    # x positions for each trace: use provided array (e.g. CDP, distance, trace num)
+    # or fall back to evenly spaced indices scaled by trace_spacing
+    if x_axis is None:
+        x_axis = np.arange(ntr) * trace_spacing
+    else:
+        x_axis = np.asarray(x_axis)
+        if len(x_axis) != ntr:
+            raise ValueError(f"x_axis length ({len(x_axis)}) must match number of traces ({ntr})")
+
+    # spacing between neighboring traces, used to scale wiggle amplitude
+    # so traces don't overlap/collide regardless of x_axis units
+    if ntr > 1:
+        avg_spacing = np.mean(np.diff(x_axis))
+    else:
+        avg_spacing = 1.0
+
+    fig, ax = plt.subplots(figsize=(20, 8), facecolor='white')
+    ax.set_facecolor('white')
 
     for i in range(ntr):
         tr = data[i]
+        pos = x_axis[i]
 
-        x = i + tr * scale
+        x = pos + tr * scale * avg_spacing
 
         plt.plot(x, t, 'k', linewidth=0.5)
-        plt.fill_betweenx(t, i, x, where=(tr > 0), color='k')
+        plt.fill_betweenx(t, pos, x, where=(tr > 0), color='k')
 
     plt.gca().invert_yaxis()
-    plt.xlabel("Trace")
+    plt.xlabel(xlabel)
     plt.ylabel("Time (s)")
-    plt.title("Shot Gather")
+    plt.title(title)
     plt.show()
 
 def plot_full_stacking(stacked_data, cdp_list, t_axis):
@@ -271,5 +289,21 @@ def plot_full_stacking(stacked_data, cdp_list, t_axis):
             extent=[cdp_list[0], cdp_list[-1], t_axis[-1], 0])
     ax.set_xlabel('CMP'); ax.set_ylabel('Tempo [s]')
     ax.set_title('Stack post-NMO')
+    plt.tight_layout()
+    plt.show()
+
+def plot_stack_static_correction(stacked_pre, stacked_post, all_cdps, t_axis):
+
+    fig, axes = plt.subplots(1, 2, figsize=(13, 6), sharey=True)
+    vmax = np.percentile(np.abs(stacked_pre), 98) + 1e-9
+    axes[0].imshow(stacked_pre.T, aspect='auto', cmap='gray', vmin=-vmax, vmax=vmax,
+                extent=[all_cdps[0], all_cdps[-1], t_axis[-1], 0])
+    axes[0].set_title('Stack pre-statiche')
+    axes[1].imshow(stacked_post.T, aspect='auto', cmap='gray', vmin=-vmax, vmax=vmax,
+                extent=[all_cdps[0], all_cdps[-1], t_axis[-1], 0])
+    axes[1].set_title('Stack post-statiche residue')
+    for ax in axes: ax.set_xlabel('CMP')
+    axes[0].set_ylabel('Tempo [s]')
+
     plt.tight_layout()
     plt.show()
