@@ -114,8 +114,7 @@ class InteractiveVelocityPicker:
         self.fig.canvas.mpl_connect("button_press_event", self._on_click)
  
     def show(self):
-        """Explicitly (re-)display the figure -- handy if it didn't render
-        automatically on creation."""
+     
         return self.fig
  
     def _on_click(self, event):
@@ -141,7 +140,7 @@ class InteractiveVelocityPicker:
         self.fig.canvas.draw_idle()
  
     def get_picks(self):
-        """Returns (times_picked, velocities_picked), sorted by time."""
+        
         if not self.times:
             return np.array([]), np.array([])
         order = np.argsort(self.times)
@@ -150,7 +149,7 @@ class InteractiveVelocityPicker:
         return t_sorted, v_sorted
  
     def get_velocity_function(self, full_t0):
-        """Interpolate current picks onto a full-sample-rate time axis."""
+        
         t_sorted, v_sorted = self.get_picks()
         if len(t_sorted) < 2:
             raise ValueError("Need at least 2 picks to build a velocity function")

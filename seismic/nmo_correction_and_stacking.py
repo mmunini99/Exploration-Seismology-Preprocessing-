@@ -18,7 +18,7 @@ def nmo_correction(cmp_gather, offsets, dt, velocity_t0, stretch_mute):
 
 
 def stack_cmp(nmo_gather):
-    """Fold-normalized stack of an NMO-corrected CMP gather."""
+    
     fold = np.sum(nmo_gather != 0, axis=0)
     fold_safe = np.where(fold == 0, 1, fold)
     return np.sum(nmo_gather, axis=0) / fold_safe

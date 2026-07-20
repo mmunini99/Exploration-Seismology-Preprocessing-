@@ -203,7 +203,7 @@ def plot_cmp_gather(cmp_gather, nmo_gather, cmp_offsets, dt, title="CMP Gather v
 
     # Second plot
     im2 = ax[1].imshow(
-        nmo_sorted.T,      # <-- replace with your second gather
+        nmo_sorted.T,      
         aspect="auto",
         cmap=cmap,
         vmin=vmin,
@@ -247,8 +247,6 @@ def wiggle_plot(data, dt, scale, title, xlabel, x_axis=None, trace_spacing=1.0):
 
     data = data / np.max(np.abs(data))  # normalize
 
-    # x positions for each trace: use provided array (e.g. CDP, distance, trace num)
-    # or fall back to evenly spaced indices scaled by trace_spacing
     if x_axis is None:
         x_axis = np.arange(ntr) * trace_spacing
     else:
@@ -256,8 +254,6 @@ def wiggle_plot(data, dt, scale, title, xlabel, x_axis=None, trace_spacing=1.0):
         if len(x_axis) != ntr:
             raise ValueError(f"x_axis length ({len(x_axis)}) must match number of traces ({ntr})")
 
-    # spacing between neighboring traces, used to scale wiggle amplitude
-    # so traces don't overlap/collide regardless of x_axis units
     if ntr > 1:
         avg_spacing = np.mean(np.diff(x_axis))
     else:

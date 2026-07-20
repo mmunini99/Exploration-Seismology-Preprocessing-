@@ -43,7 +43,7 @@ def get_stack_static_correction(stacked_section, all_cdps, max_shift, pilot_half
         best = lag[sel][np.argmax(cc[sel])]
         shifts[j] = best
 
-        # best = how much tr is delayed relative to pilot -> pull it EARLIER by `best`
+        # best = how much tr is delayed relative to pilot 
         if best > 0:
             stack_static[j, :-best] = tr[best:]
         elif best < 0:

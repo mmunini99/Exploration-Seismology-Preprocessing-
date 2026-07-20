@@ -3,7 +3,7 @@ from scipy.ndimage import uniform_filter1d
 import numpy as np
 
 def butterworth_filter(data, dt, low_hz, high_hz, order):
-    """Zero-phase Butterworth bandpass to cut low-freq swell noise and high-freq."""
+    
     fs = 1.0 / dt
     nyq = 0.5 * fs # Nyquist frequency
     norm_low_f = low_hz / nyq
@@ -13,7 +13,7 @@ def butterworth_filter(data, dt, low_hz, high_hz, order):
 
 
 def median_filter_despike(data, kernel_size):
-    """Median filter along time axis to knock out isolated spikes."""
+    
     return medfilt(data, kernel_size=(1, kernel_size))
 
 def spherical_divergence_correction(data, t_axis, dt, power=2.0, v_rms=None):
@@ -25,7 +25,7 @@ def spherical_divergence_correction(data, t_axis, dt, power=2.0, v_rms=None):
 
 
 def AGC(data, dt, window):
-    """Automatic Gain Control using an RMS sliding window, per trace."""
+    
     n_traces, _ = data.shape
     win = max(int(round(window / dt)), 1)
     kernel = np.ones(win) / win

@@ -32,7 +32,7 @@ def kirchhoff_migration(stack_in, t_axis_, dx, v_t, max_aperture_m):
     dt_   = t_axis_[1] - t_axis_[0]
     out   = np.zeros_like(stack_in, dtype=np.float32)
     half  = int(max_aperture_m / dx)
-    dx_ap = np.arange(-half, half + 1) * dx       # offsets relativi (m)
+    dx_ap = np.arange(-half, half + 1) * dx       # offsets relativ (m)
 
     for it0 in range(nt):
         t0v = t_axis_[it0]
@@ -58,9 +58,7 @@ def kirchhoff_migration(stack_in, t_axis_, dx, v_t, max_aperture_m):
                 sum_out[: nx - k]  += row[k:]
             else:
                 sum_out[-k:]       += row[: nx + k]
-            # FIX: accumulate full aperture weight regardless of in-bounds trace range,
-            # so edge traces are normalized the same as interior traces (prevents
-            # edge over-amplification / hyperbola smile artifact).
+ 
             wsum_out += w
 
         out[it0, :] = sum_out / np.maximum(wsum_out, 1e-9)
