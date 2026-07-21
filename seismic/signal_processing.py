@@ -23,6 +23,20 @@ def spherical_divergence_correction(data, t_axis, dt, power=2.0, v_rms=None):
     gain = (v_rms ** 2) * t if v_rms is not None else t ** power
     return data * gain[np.newaxis, :]
 
+def spherical_divergence_correction_with_velocity_field(data, t_axis, dt, cdp, v_rms_field):
+
+    t = t_axis.copy()
+    t[0] = dt
+
+    corrected = np.empty_like(data)
+
+    for i in range(data.shape[0]):
+        vrms = v_rms_field[cdp[i]-1, :]          # (n_samples,)
+        gain = vrms**2 * t                  # gain for this trace
+        corrected[i, :] = data[i, :] * gain
+
+    return corrected
+
 
 def AGC(data, dt, window):
     
