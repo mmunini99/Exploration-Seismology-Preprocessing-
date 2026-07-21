@@ -32,7 +32,7 @@ def spherical_divergence_correction_with_velocity_field(data, t_axis, dt, cdp, v
 
     for i in range(data.shape[0]):
         vrms = v_rms_field[cdp[i]-1, :]          # (n_samples,)
-        gain = vrms**2 * t                  # gain for this trace
+        gain = vrms * t                  # gain for this trace
         corrected[i, :] = data[i, :] * gain
 
     return corrected
