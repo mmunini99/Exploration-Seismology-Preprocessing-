@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.signal import detrend
 
 
 def _clip_val(gather, pctl=98):
@@ -75,6 +76,34 @@ def plot_common_offset_gather(data, headers, dt, offset_value, tolerance=1.0,
     ax.set_xlabel("Trace index")
     ax.set_ylabel("Time [s]")
     ax.set_title(title or f"Common offset gather (offset≈{offset_value} m)")
+    if ax is None:
+        plt.show()
+    else:
+        return ax
+    
+def plot_common_offset_gather_single(data, dt, tolerance=1.0, ax=None, pctl=98):
+
+    gather = data.copy()
+
+
+    n_samples = gather.shape[1]
+    t_max = n_samples * dt
+
+    clip = _clip_val(gather, pctl)
+
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(7, 8))
+    ax.imshow(
+        gather.T,
+        cmap="gray",
+        aspect="auto",
+        vmin=-clip,
+        vmax=clip,
+        extent=[0, gather.shape[0], t_max, 0],
+    )
+    ax.set_xlabel("Trace index")
+    ax.set_ylabel("Time [s]")
+   
     if ax is None:
         plt.show()
     else:
@@ -303,3 +332,112 @@ def plot_stack_static_correction(stacked_pre, stacked_post, all_cdps, t_axis):
 
     plt.tight_layout()
     plt.show()
+
+
+def rms_envelope(trace, win_samples, step_samples=1):
+
+    trace = np.asarray(trace, dtype=np.float64)
+    n = len(trace)
+    half = win_samples // 2
+    centers = np.arange(half, n - half, step_samples)
+    env = np.empty(len(centers))
+    for i, c in enumerate(centers):
+        seg = trace[c - half:c + half]
+        env[i] = np.sqrt(np.mean(seg ** 2))
+    return centers, env
+ 
+ 
+def plot_design_window_diagnostic(trace, fs, win_ms=75, step_samples=5,
+                                   candidate_slice=None, first_break_idx=None,
+                                   title="Design window diagnostic"):
+
+    trace = np.asarray(trace, dtype=np.float64)
+    n = len(trace)
+    t = np.arange(n) / fs
+ 
+    win_samples = max(2, int(round(win_ms * 1e-3 * fs)))
+    centers, env = rms_envelope(trace, win_samples, step_samples)
+    t_env = centers / fs
+ 
+    fig, axes = plt.subplots(2, 1, figsize=(11, 6), sharex=True)
+ 
+    axes[0].plot(t, trace, lw=0.7, color="black")
+    axes[0].set_ylabel("Amplitude")
+    axes[0].set_title(f"{title} — trace")
+ 
+    axes[1].plot(t_env, env, lw=1.2, color="tab:blue")
+    axes[1].set_ylabel("RMS envelope")
+    axes[1].set_xlabel("Time (s)")
+    axes[1].set_title(f"RMS envelope (window = {win_ms} ms)")
+ 
+    for ax in axes:
+        if first_break_idx is not None:
+            ax.axvline(first_break_idx / fs, color="tab:red", ls="--",
+                        label="first break")
+        if candidate_slice is not None:
+            start = candidate_slice.start or 0
+            stop = candidate_slice.stop or n
+            ax.axvspan(start / fs, stop / fs, color="tab:green", alpha=0.2,
+                        label="candidate design_slice")
+ 
+    axes[0].legend(loc="upper right")
+    plt.tight_layout()
+    plt.show()
+ 
+
+ 
+
+def autocorr_decay(seg, max_lag=None, detrend_seg=True):
+
+    seg = np.asarray(seg, dtype=np.float64)
+    if detrend_seg:
+        seg = detrend(seg)
+ 
+    if max_lag is None:
+        max_lag = len(seg) // 2
+ 
+    r = np.correlate(seg, seg, mode="full")
+    mid = len(seg) - 1
+    r = r[mid:mid + max_lag + 1]
+    r_norm = r / r[0]
+    lags = np.arange(max_lag + 1)
+    return lags, r_norm
+ 
+ 
+def plot_autocorr_decay(seg, fs, max_lag=None, threshold=0.1,
+                         title="Autocorrelation decay (op_len diagnostic)"):
+
+    lags, r_norm = autocorr_decay(seg, max_lag=max_lag)
+ 
+    # find first lag beyond which |r_norm| stays under threshold
+    below = np.abs(r_norm) < threshold
+    suggested_op_len = None
+    for i in range(len(below)):
+        if np.all(below[i:]):
+            suggested_op_len = lags[i]
+            break
+    if suggested_op_len is None:
+        suggested_op_len = lags[-1]  # never fully decays within max_lag
+ 
+    t_lags_ms = lags / fs * 1000.0
+ 
+    fig, ax = plt.subplots(figsize=(9, 4.5))
+    ax.plot(t_lags_ms, r_norm, marker="o", ms=3, lw=1, color="black")
+    ax.axhline(threshold, color="tab:red", ls="--", lw=1,
+               label=f"+/- {threshold:.0%} threshold")
+    ax.axhline(-threshold, color="tab:red", ls="--", lw=1)
+    ax.axvline(suggested_op_len / fs * 1000.0, color="tab:green", ls="-",
+               lw=1.5,
+               label=f"suggested op_len = {suggested_op_len} samples")
+    ax.set_xlabel("Lag (ms)")
+    ax.set_ylabel("Normalized autocorrelation r[k]/r[0]")
+    ax.set_title(title)
+    ax.legend(loc="upper right")
+    plt.tight_layout()
+    plt.show()
+ 
+    print(f"Suggested op_len: {suggested_op_len} samples "
+          f"({suggested_op_len / fs * 1000:.1f} ms)")
+ 
+
+ 

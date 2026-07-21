@@ -5,3 +5,5 @@ input/
 * .tar
 * .segy
 seismic/__pychace__
+images/
+images/__pychace__/

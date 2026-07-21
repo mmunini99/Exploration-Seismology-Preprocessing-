@@ -155,3 +155,4 @@ def deconvolve_all_traces_auto(data, dt, pre_white, ref_trace_idx, safety_factor
             print(f"{i+1}/{n_traces} traces processed")
 
     return traces_dc
+
